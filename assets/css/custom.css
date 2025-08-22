@@ -1,0 +1,99 @@
+/* Custom CSS for Attendance System */
+
+/* Primary Colors - Blue Theme */
+:root {
+  --primary-50: #eff6ff;
+  --primary-100: #dbeafe;
+  --primary-200: #bfdbfe;
+  --primary-300: #93c5fd;
+  --primary-400: #60a5fa;
+  --primary-500: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-700: #1d4ed8;
+  --primary-800: #1e40af;
+  --primary-900: #1e3a8a;
+}
+
+/* Override Tailwind colors with custom colors */
+.bg-blue-50 { background-color: var(--primary-50) !important; }
+.bg-blue-100 { background-color: var(--primary-100) !important; }
+.bg-blue-600 { background-color: var(--primary-600) !important; }
+.bg-blue-700 { background-color: var(--primary-700) !important; }
+
+.text-blue-600 { color: var(--primary-600) !important; }
+.text-blue-700 { color: var(--primary-700) !important; }
+
+.border-blue-500 { border-color: var(--primary-500) !important; }
+
+.hover\:bg-blue-700:hover { background-color: var(--primary-700) !important; }
+.hover\:bg-blue-50:hover { background-color: var(--primary-50) !important; }
+
+/* Custom button styles */
+.btn-primary {
+  background-color: var(--primary-600);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-700);
+}
+
+/* Custom card styles */
+.card-custom {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+}
+
+/* Header customization */
+.header-custom {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+  color: white;
+}
+
+/* Sidebar active link */
+.sidebar-active {
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+  border-left: 4px solid var(--primary-600);
+}
+
+/* Table hover effects */
+.table-row:hover {
+  background-color: var(--primary-50);
+}
+
+/* Success colors */
+.bg-success { background-color: #10b981; }
+.text-success { color: #10b981; }
+
+/* Warning colors */
+.bg-warning { background-color: #f59e0b; }
+.text-warning { color: #f59e0b; }
+
+/* Error colors */
+.bg-error { background-color: #ef4444; }
+.text-error { color: #ef4444; }
+
+/* Custom animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-custom {
+    padding: 1rem;
+  }
+}
