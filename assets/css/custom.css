@@ -1,17 +1,27 @@
 /* Custom CSS for Attendance System */
 
-/* Primary Colors - Blue Theme */
+/* Primary Colors - Custom Theme */
 :root {
-  --primary-50: #f0f9ff;
-  --primary-100: #e0f2fe;
-  --primary-200: #bae6fd;
-  --primary-300: #7dd3fc;
-  --primary-400: #38bdf8;
-  --primary-500: #0ea5e9;
-  --primary-600: #0284c7;
-  --primary-700: #0369a1;
-  --primary-800: #075985;
-  --primary-900: #0c4a6e;
+  /* Colores principales personalizados */
+  --primary-50: #f9f9fb;    /* Azul muy claro */
+  --primary-100: #e8e9f3;   /* Azul claro */
+  --primary-200: #d1d3e7;   /* Azul medio claro */
+  --primary-300: #a5a9d1;   /* Azul medio */
+  --primary-400: #7a80bb;   /* Azul medio oscuro */
+  --primary-500: #4f56a5;   /* Azul */
+  --primary-600: #273376;   /* Azul principal */
+  --primary-700: #1f2a5e;   /* Azul oscuro */
+  --primary-800: #172046;   /* Azul muy oscuro */
+  --primary-900: #0f172e;   /* Azul casi negro */
+  
+  /* Colores secundarios */
+  --yellow-primary: #FFC907;  /* Amarillo principal */
+  --yellow-light: #fff3cd;    /* Amarillo claro */
+  --yellow-dark: #e6b800;     /* Amarillo oscuro */
+  
+  --red-primary: #A70336;     /* Rojo principal */
+  --red-light: #f8d7da;      /* Rojo claro */
+  --red-dark: #8b022d;       /* Rojo oscuro */
 }
 
 /* Override Tailwind colors with custom colors */
@@ -28,6 +38,17 @@
 .hover\:bg-blue-700:hover { background-color: var(--primary-700) !important; }
 .hover\:bg-blue-50:hover { background-color: var(--primary-50) !important; }
 
+/* Nuevos colores personalizados */
+.bg-yellow-primary { background-color: var(--yellow-primary) !important; }
+.text-yellow-primary { color: var(--yellow-primary) !important; }
+.bg-yellow-light { background-color: var(--yellow-light) !important; }
+.hover\:bg-yellow-dark:hover { background-color: var(--yellow-dark) !important; }
+
+.bg-red-primary { background-color: var(--red-primary) !important; }
+.text-red-primary { color: var(--red-primary) !important; }
+.bg-red-light { background-color: var(--red-light) !important; }
+.hover\:bg-red-dark:hover { background-color: var(--red-dark) !important; }
+
 /* Custom button styles */
 .btn-primary {
   background-color: var(--primary-600);
@@ -41,6 +62,34 @@
 
 .btn-primary:hover {
   background-color: var(--primary-700);
+}
+
+.btn-yellow {
+  background-color: var(--yellow-primary);
+  color: #000;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-yellow:hover {
+  background-color: var(--yellow-dark);
+}
+
+.btn-red {
+  background-color: var(--red-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-red:hover {
+  background-color: var(--red-dark);
 }
 
 /* Custom card styles */
