@@ -2,13 +2,13 @@
 
 /* Primary Colors - Custom Theme */
 :root {
-  /* Colores principales personalizados */
-  --primary-50: #f9f9fb;    /* Azul muy claro */
-  --primary-100: #e8e9f3;   /* Azul claro */
-  --primary-200: #d1d3e7;   /* Azul medio claro */
-  --primary-300: #a5a9d1;   /* Azul medio */
-  --primary-400: #7a80bb;   /* Azul medio oscuro */
-  --primary-500: #4f56a5;   /* Azul */
+  /* Colores principales - Azul #273376 */
+  --primary-50: #f0f2f9;    /* Azul muy claro */
+  --primary-100: #e1e6f3;   /* Azul claro */
+  --primary-200: #c3cde7;   /* Azul medio claro */
+  --primary-300: #9fb0d8;   /* Azul medio */
+  --primary-400: #7b93c9;   /* Azul medio oscuro */
+  --primary-500: #4d6bb5;   /* Azul */
   --primary-600: #273376;   /* Azul principal */
   --primary-700: #1f2a5e;   /* Azul oscuro */
   --primary-800: #172046;   /* Azul muy oscuro */
@@ -16,12 +16,35 @@
   
   /* Colores secundarios */
   --yellow-primary: #FFC907;  /* Amarillo principal */
-  --yellow-light: #fff3cd;    /* Amarillo claro */
+  --yellow-light: #fff8e1;    /* Amarillo claro */
   --yellow-dark: #e6b800;     /* Amarillo oscuro */
   
   --red-primary: #A70336;     /* Rojo principal */
-  --red-light: #f8d7da;      /* Rojo claro */
+  --red-light: #fce8ed;      /* Rojo claro */
   --red-dark: #8b022d;       /* Rojo oscuro */
+  
+  /* Gradientes */
+  --gradient-primary: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+  --gradient-yellow: linear-gradient(135deg, var(--yellow-primary) 0%, var(--yellow-dark) 100%);
+  --gradient-red: linear-gradient(135deg, var(--red-primary) 0%, var(--red-dark) 100%);
+}
+
+/* Body y elementos base */
+body {
+  background: linear-gradient(135deg, var(--primary-50) 0%, #ffffff 50%, var(--yellow-light) 100%);
+  min-height: 100vh;
+}
+
+/* Header con gradiente */
+.header-gradient {
+  background: var(--gradient-primary);
+  box-shadow: 0 4px 6px -1px rgba(39, 51, 118, 0.1), 0 2px 4px -1px rgba(39, 51, 118, 0.06);
+}
+
+/* Sidebar con colores personalizados */
+.sidebar-custom {
+  background: linear-gradient(180deg, #ffffff 0%, var(--primary-50) 100%);
+  border-right: 3px solid var(--primary-200);
 }
 
 /* Override Tailwind colors with custom colors */
@@ -38,7 +61,30 @@
 .hover\:bg-blue-700:hover { background-color: var(--primary-700) !important; }
 .hover\:bg-blue-50:hover { background-color: var(--primary-50) !important; }
 
-/* Nuevos colores personalizados */
+/* Cards con bordes coloridos */
+.card-custom {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  border-top: 4px solid var(--primary-600);
+  transition: all 0.3s ease;
+}
+
+.card-custom:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(39, 51, 118, 0.1), 0 4px 6px -2px rgba(39, 51, 118, 0.05);
+}
+
+.card-yellow {
+  border-top-color: var(--yellow-primary);
+}
+
+.card-red {
+  border-top-color: var(--red-primary);
+}
+
+/* Colores personalizados para elementos */
 .bg-yellow-primary { background-color: var(--yellow-primary) !important; }
 .text-yellow-primary { color: var(--yellow-primary) !important; }
 .bg-yellow-light { background-color: var(--yellow-light) !important; }
@@ -51,71 +97,92 @@
 
 /* Custom button styles */
 .btn-primary {
-  background-color: var(--primary-600);
+  background: var(--gradient-primary);
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(39, 51, 118, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-700);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(39, 51, 118, 0.3);
 }
 
 .btn-yellow {
-  background-color: var(--yellow-primary);
-  color: #000;
+  background: var(--gradient-yellow);
+  color: #1a1a1a;
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(255, 201, 7, 0.3);
+  font-weight: 600;
 }
 
 .btn-yellow:hover {
-  background-color: var(--yellow-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 201, 7, 0.4);
 }
 
 .btn-red {
-  background-color: var(--red-primary);
+  background: var(--gradient-red);
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(167, 3, 54, 0.3);
 }
 
 .btn-red:hover {
-  background-color: var(--red-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(167, 3, 54, 0.4);
 }
 
-/* Custom card styles */
-.card-custom {
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
-}
-
-/* Header customization */
-.header-custom {
+/* Estadísticas con colores */
+.stat-card-blue {
   background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+  color: white;
+}
+
+.stat-card-yellow {
+  background: linear-gradient(135deg, var(--yellow-primary) 0%, var(--yellow-dark) 100%);
+  color: #1a1a1a;
+}
+
+.stat-card-red {
+  background: linear-gradient(135deg, var(--red-primary) 0%, var(--red-dark) 100%);
+  color: white;
+}
+
+.stat-card-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
 }
 
 /* Sidebar active link */
 .sidebar-active {
-  background-color: var(--primary-50);
+  background: linear-gradient(90deg, var(--primary-50) 0%, var(--primary-100) 100%);
   color: var(--primary-700);
-  border-left: 4px solid var(--primary-600);
+  border-left: 4px solid var(--yellow-primary);
+  box-shadow: 0 2px 4px rgba(39, 51, 118, 0.1);
 }
 
 /* Table hover effects */
 .table-row:hover {
-  background-color: var(--primary-50);
+  background: linear-gradient(90deg, var(--primary-50) 0%, transparent 100%);
+}
+
+/* Footer con gradiente sutil */
+.footer-custom {
+  background: linear-gradient(90deg, var(--primary-50) 0%, #ffffff 50%, var(--yellow-light) 100%);
+  border-top: 2px solid var(--primary-200);
 }
 
 /* Success colors */
@@ -123,12 +190,28 @@
 .text-success { color: #10b981; }
 
 /* Warning colors */
-.bg-warning { background-color: #f59e0b; }
-.text-warning { color: #f59e0b; }
+.bg-warning { background-color: var(--yellow-primary); }
+.text-warning { color: var(--yellow-primary); }
 
 /* Error colors */
-.bg-error { background-color: #ef4444; }
-.text-error { color: #ef4444; }
+.bg-error { background-color: var(--red-primary); }
+.text-error { color: var(--red-primary); }
+
+/* Inputs con bordes coloridos */
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary-600) !important;
+  box-shadow: 0 0 0 3px rgba(39, 51, 118, 0.1) !important;
+}
+
+/* Elementos con animaciones */
+.pulse-yellow {
+  animation: pulse-yellow 2s infinite;
+}
+
+@keyframes pulse-yellow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 201, 7, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 201, 7, 0); }
+}
 
 /* Custom animations */
 @keyframes fadeIn {
@@ -140,9 +223,31 @@
   animation: fadeIn 0.3s ease-out;
 }
 
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--primary-50);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-600);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-700);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .card-custom {
     padding: 1rem;
+  }
+  
+  body {
+    background: linear-gradient(180deg, var(--primary-50) 0%, #ffffff 100%);
   }
 }

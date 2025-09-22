@@ -29,6 +29,20 @@
         .hover\:bg-blue-50:hover { 
             background-color: var(--primary-50) !important; 
         }
+        
+        /* Aplicar clases personalizadas */
+        .bg-gray-100 { 
+            background: linear-gradient(135deg, var(--primary-50) 0%, #ffffff 50%, var(--yellow-light) 100%) !important; 
+        }
+        
+        .bg-white { 
+            background: white !important;
+            border-radius: 0.75rem !important;
+        }
+        
+        .shadow-md {
+            box-shadow: 0 4px 6px -1px rgba(39, 51, 118, 0.1), 0 2px 4px -1px rgba(39, 51, 118, 0.06) !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
