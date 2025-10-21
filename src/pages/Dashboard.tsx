@@ -76,9 +76,9 @@ const Dashboard: React.FC = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Total Employees Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 flex items-center transition-transform hover:scale-105">
-          <div className="bg-blue-100 p-3 rounded-full">
-            <Users className="h-8 w-8 text-blue-600" />
+        <div className="bg-white rounded-lg shadow-md p-6 flex items-center card-blue">
+          <div className="p-3 rounded-full" style={{ backgroundColor: '#f0f2f9' }}>
+            <Users className="h-8 w-8" style={{ color: '#273376' }} />
           </div>
           <div className="ml-4">
             <h2 className="text-sm font-medium text-gray-500">Total Employees</h2>
@@ -87,9 +87,9 @@ const Dashboard: React.FC = () => {
         </div>
         
         {/* Today's Attendance Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 flex items-center transition-transform hover:scale-105">
-          <div className="bg-green-100 p-3 rounded-full">
-            <Clock className="h-8 w-8 text-green-600" />
+        <div className="bg-white rounded-lg shadow-md p-6 flex items-center card-yellow">
+          <div className="p-3 rounded-full" style={{ backgroundColor: '#fff8e1' }}>
+            <Clock className="h-8 w-8" style={{ color: '#FFC907' }} />
           </div>
           <div className="ml-4">
             <h2 className="text-sm font-medium text-gray-500">Today's Attendance</h2>
@@ -98,9 +98,9 @@ const Dashboard: React.FC = () => {
         </div>
         
         {/* Weekly Attendance Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 flex items-center transition-transform hover:scale-105">
-          <div className="bg-purple-100 p-3 rounded-full">
-            <CalendarCheck className="h-8 w-8 text-purple-600" />
+        <div className="bg-white rounded-lg shadow-md p-6 flex items-center card-blue">
+          <div className="p-3 rounded-full" style={{ backgroundColor: '#f0f2f9' }}>
+            <CalendarCheck className="h-8 w-8" style={{ color: '#273376' }} />
           </div>
           <div className="ml-4">
             <h2 className="text-sm font-medium text-gray-500">Weekly Check-ins</h2>
@@ -109,9 +109,9 @@ const Dashboard: React.FC = () => {
         </div>
         
         {/* Attendance Rate Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 flex items-center transition-transform hover:scale-105">
-          <div className="bg-orange-100 p-3 rounded-full">
-            <ClipboardCheck className="h-8 w-8 text-orange-600" />
+        <div className="bg-white rounded-lg shadow-md p-6 flex items-center card-red">
+          <div className="p-3 rounded-full" style={{ backgroundColor: '#fce8ed' }}>
+            <ClipboardCheck className="h-8 w-8" style={{ color: '#A70336' }} />
           </div>
           <div className="ml-4">
             <h2 className="text-sm font-medium text-gray-500">Today's Rate</h2>

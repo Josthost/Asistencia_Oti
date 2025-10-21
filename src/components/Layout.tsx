@@ -15,13 +15,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      <header className="bg-white shadow-sm">
+    <div className="min-h-screen flex flex-col">
+      <header className="header-gradient shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
-              <ClipboardCheck className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">Control de Asistencia</span>
+              <ClipboardCheck className="h-8 w-8" style={{ color: '#FFC907' }} />
+              <span className="ml-2 text-xl font-bold text-white">Control de Asistencia</span>
             </div>
           </div>
         </div>
@@ -36,14 +36,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <NavLink
                     to={item.to}
                     className={({ isActive }) =>
-                      `flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors ${
+                      `flex items-center px-4 py-3 text-gray-700 rounded-lg transition-all ${
                         isActive
-                          ? 'bg-blue-50 text-blue-700'
+                          ? 'nav-active'
                           : 'hover:bg-gray-50'
                       }`
                     }
                   >
-                    {item.icon}
+                    <span className={({ isActive }) => isActive ? 'text-yellow-600' : ''}>
+                      {item.icon}
+                    </span>
                     <span className="ml-3">{item.label}</span>
                   </NavLink>
                 </li>

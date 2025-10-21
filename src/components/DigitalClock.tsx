@@ -34,7 +34,7 @@ const DigitalClock: React.FC = () => {
   
   return (
     <div className="text-center mb-6">
-      <div className="text-3xl font-bold text-blue-600 transition-all duration-500">
+      <div className="text-3xl font-bold transition-all duration-500" style={{ color: '#273376' }}>
         {time}
       </div>
       <div className="text-gray-600 text-sm">
