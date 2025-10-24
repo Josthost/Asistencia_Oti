@@ -1,18 +1,29 @@
 import React, { ReactNode } from 'react';
-import { ClipboardCheck, Users, Clock, BarChart } from 'lucide-react';
+import { ClipboardCheck, Users, Clock, BarChart, LogOut } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { user, logout } = useAuth();
+
   const navItems = [
     { to: '/', icon: <BarChart className="w-5 h-5" />, label: 'Panel Principal' },
-    { to: '/employees', icon: <Users className="w-5 h-5" />, label: 'Empleados' },
+    { to: '/employees', icon: <Users className="w-5 h-5" />, label: 'Empleados', roles: ['admin', 'supervisor'] },
     { to: '/attendance', icon: <Clock className="w-5 h-5" />, label: 'Asistencia' },
-    { to: '/reports', icon: <ClipboardCheck className="w-5 h-5" />, label: 'Reportes' }
+    { to: '/reports', icon: <ClipboardCheck className="w-5 h-5" />, label: 'Reportes', roles: ['admin', 'supervisor'] }
   ];
+
+  const filteredNavItems = navItems.filter(item => 
+    !item.roles || item.roles.includes(user?.rol || '')
+  );
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -23,6 +34,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <ClipboardCheck className="h-8 w-8" style={{ color: '#FFC907' }} />
               <span className="ml-2 text-xl font-bold text-white">Control de Asistencia</span>
             </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-white text-sm">
+                Bienvenido, <span className="font-semibold">{user?.usuario}</span>
+              </span>
+              <button
+                onClick={handleLogout}
+                className="flex items-center px-3 py-2 text-white hover:bg-white hover:bg-opacity-20 rounded-md transition-colors"
+              >
+                <LogOut className="h-4 w-4 mr-1" />
+                Salir
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -31,7 +54,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <nav className="bg-white w-64 shadow-md hidden md:block">
           <div className="px-4 py-6">
             <ul className="space-y-2">
-              {navItems.map((item) => (
+              {filteredNavItems.map((item) => (
                 <li key={item.to}>
                   <NavLink
                     to={item.to}
