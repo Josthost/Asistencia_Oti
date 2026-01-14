@@ -24,6 +24,7 @@ Sistema completo de control de asistencia con autenticación de usuarios y base 
 ### Backend
 - Node.js + Express.js
 - MySQL2 (conexión a base de datos)
+- MySQL2 (conexión a base de datos principal y externa)
 - bcryptjs (encriptación de contraseñas)
 - jsonwebtoken (autenticación JWT)
 - CORS habilitado
@@ -77,14 +78,23 @@ npm install
 
 ### 3. Configurar Variables de Entorno
 
-El archivo `.env` ya está configurado para XAMPP por defecto:
+El archivo `.env` debe configurarse tanto para la base de datos principal como para la externa:
 
 ```env
+# Base de datos principal (Sistema de asistencia)
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=
 DB_NAME=sistema_asistencia
 DB_PORT=3306
+
+# Base de datos externa (Datos de empleados)
+EXTERNAL_DB_HOST=192.168.1.100
+EXTERNAL_DB_USER=empleados_user
+EXTERNAL_DB_PASSWORD=empleados_pass
+EXTERNAL_DB_NAME=empleados_db
+EXTERNAL_DB_PORT=3306
+
 JWT_SECRET=tu_clave_secreta_muy_segura_aqui_2024
 ```
 
@@ -134,6 +144,7 @@ npm run dev
 ### Autenticación
 - ✅ Login con usuario/contraseña
 - ✅ Registro de nuevos usuarios
+- ✅ Autocompletado de datos desde BD externa
 - ✅ Protección de rutas por rol
 - ✅ JWT tokens seguros
 - ✅ Logout automático
@@ -143,6 +154,13 @@ npm run dev
 - ✅ Un registro por día por usuario
 - ✅ Historial de asistencias
 - ✅ Estadísticas personales
+
+### Base de Datos Externa
+- ✅ Conexión a BD externa para datos de empleados
+- ✅ Búsqueda automática por cédula
+- ✅ Autocompletado de formularios
+- ✅ Búsqueda avanzada de empleados
+- ✅ Estadísticas de conexión
 
 ### Reportes (Admin/Supervisor)
 - ✅ Reportes por fecha
@@ -204,6 +222,11 @@ npm run server
 - `GET /api/asistencias/todas` - Todas las asistencias (Admin/Supervisor)
 - `GET /api/asistencias/estadisticas` - Estadísticas
 
+### Empleados (BD Externa)
+- `GET /api/employees/buscar-cedula/:cedula` - Buscar por cédula
+- `GET /api/employees/buscar` - Búsqueda general
+- `GET /api/employees/stats` - Estadísticas de BD externa
+
 ## 🎨 Colores del Sistema
 
 - **Azul Principal**: #273376
@@ -214,9 +237,10 @@ npm run server
 
 Para problemas o dudas:
 1. Verificar que XAMPP esté corriendo
-2. Confirmar que la base de datos existe
-3. Revisar los logs del servidor
-4. Verificar las variables de entorno
+2. Verificar conexión a base de datos externa
+3. Confirmar que ambas bases de datos existen
+4. Revisar los logs del servidor
+5. Verificar las variables de entorno (principal y externa)
 
 ---
 
