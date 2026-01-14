@@ -89,3 +89,44 @@ export const asistenciasAPI = {
 };
 
 export default api;
+
+// Employees API (External DB)
+export const employeesAPI = {
+  buscarPorCedula: async (cedula: string): Promise<{
+    found: boolean;
+    empleado?: {
+      cedula: string;
+      nombre: string;
+      apellido: string;
+      nombre_completo: string;
+      departamento: string;
+      cargo: string;
+      email?: string;
+      telefono?: string;
+      fecha_ingreso?: string;
+    };
+    error?: string;
+  }> => {
+    const response = await api.get(`/employees/buscar-cedula/${cedula}`);
+    return response.data;
+  },
+
+  buscar: async (searchTerm: string, limit = 10): Promise<{
+    empleados: any[];
+    total: number;
+  }> => {
+    const response = await api.get('/employees/buscar', {
+      params: { q: searchTerm, limit }
+    });
+    return response.data;
+  },
+
+  getStats: async (): Promise<{
+    total_empleados: number;
+    total_departamentos: number;
+    conexion_activa: boolean;
+  }> => {
+    const response = await api.get('/employees/stats');
+    return response.data;
+  },
+};

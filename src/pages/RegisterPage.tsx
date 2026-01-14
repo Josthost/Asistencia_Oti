@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { authAPI } from '../services/api';
+import { authAPI, employeesAPI } from '../services/api';
 import { ClipboardCheck, User, Lock, CreditCard, AlertCircle, CheckCircle } from 'lucide-react';
 
 const RegisterPage: React.FC = () => {
@@ -11,6 +11,14 @@ const RegisterPage: React.FC = () => {
     confirmPassword: '',
     rol: 'empleado' as 'admin' | 'empleado' | 'supervisor'
   });
+  const [employeeData, setEmployeeData] = useState<{
+    nombre?: string;
+    apellido?: string;
+    departamento?: string;
+    cargo?: string;
+  } | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchMessage, setSearchMessage] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,10 +26,18 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+    
+    // Si cambió la cédula, limpiar datos del empleado
+    if (name === 'cedula') {
+      setEmployeeData(null);
+      setSearchMessage('');
+    }
   };
 
   const validateForm = () => {
@@ -48,6 +64,44 @@ const RegisterPage: React.FC = () => {
     return true;
   };
 
+  const handleSearchEmployee = async () => {
+    if (!formData.cedula || formData.cedula.length < 6) {
+      setSearchMessage('Ingrese una cédula válida (mínimo 6 dígitos)');
+      return;
+    }
+
+    setIsSearching(true);
+    setSearchMessage('Buscando empleado...');
+    setEmployeeData(null);
+
+    try {
+      const result = await employeesAPI.buscarPorCedula(formData.cedula);
+      
+      if (result.found && result.empleado) {
+        setEmployeeData({
+          nombre: result.empleado.nombre,
+          apellido: result.empleado.apellido,
+          departamento: result.empleado.departamento,
+          cargo: result.empleado.cargo
+        });
+        setSearchMessage(`✅ Empleado encontrado: ${result.empleado.nombre_completo}`);
+        
+        // Auto-generar usuario basado en nombre y apellido
+        const usuarioSugerido = `${result.empleado.nombre.toLowerCase()}.${result.empleado.apellido.toLowerCase()}`.replace(/\s+/g, '');
+        setFormData(prev => ({
+          ...prev,
+          usuario: usuarioSugerido
+        }));
+      } else {
+        setSearchMessage('❌ No se encontró empleado con esa cédula');
+      }
+    } catch (error: any) {
+      console.error('Error buscando empleado:', error);
+      setSearchMessage('⚠️ Error al buscar empleado. Puede continuar manualmente.');
+    } finally {
+      setIsSearching(false);
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -130,8 +184,39 @@ const RegisterPage: React.FC = () => {
                   placeholder="Ingresa tu cédula"
                 />
               </div>
+              <div className="mt-2 flex space-x-2">
+                <button
+                  type="button"
+                  onClick={handleSearchEmployee}
+                  disabled={isSearching || !formData.cedula}
+                  className="text-sm px-3 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isSearching ? 'Buscando...' : 'Buscar Datos'}
+                </button>
+              </div>
+              {searchMessage && (
+                <p className={`text-xs mt-1 ${
+                  searchMessage.includes('✅') ? 'text-green-600' : 
+                  searchMessage.includes('❌') ? 'text-red-600' : 
+                  'text-blue-600'
+                }`}>
+                  {searchMessage}
+                </p>
+              )}
             </div>
 
+            {/* Mostrar datos encontrados */}
+            {employeeData && (
+              <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                <h4 className="text-sm font-medium text-green-800 mb-2">Datos encontrados:</h4>
+                <div className="grid grid-cols-2 gap-2 text-xs text-green-700">
+                  <div><strong>Nombre:</strong> {employeeData.nombre}</div>
+                  <div><strong>Apellido:</strong> {employeeData.apellido}</div>
+                  <div><strong>Departamento:</strong> {employeeData.departamento}</div>
+                  <div><strong>Cargo:</strong> {employeeData.cargo}</div>
+                </div>
+              </div>
+            )}
             <div>
               <label htmlFor="usuario" className="block text-sm font-medium text-gray-700">
                 Usuario

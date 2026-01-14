@@ -33,6 +33,7 @@ if (!process.env.DB_NAME) {
 // Importar rutas
 import authRoutes from './routes/auth.js';
 import asistenciasRoutes from './routes/asistencias.js';
+import employeesRoutes from './routes/employees.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -51,6 +52,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/asistencias', asistenciasRoutes);
+app.use('/api/employees', employeesRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
