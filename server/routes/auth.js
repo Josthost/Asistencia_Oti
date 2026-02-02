@@ -16,35 +16,35 @@ const router = express.Router();
 // Registro de usuario
 router.post('/register', async (req, res) => {
   try {
-    const { cedula, usuario, password, rol = 'empleado' } = req.body;
+    const { cedula, password } = req.body;
 
     // Validaciones
-    if (!cedula || !usuario || !password) {
-      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    if (!cedula || !password) {
+      return res.status(400).json({ error: 'Cédula y contraseña son requeridos' });
     }
 
     if (password.length < 6) {
       return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
     }
 
-    // Verificar si el usuario ya existe
+    // Verificar si la cédula ya está registrada
     const [existingUsers] = await db.execute(
-      'SELECT id FROM usuarios WHERE cedula = ? OR usuario = ?',
-      [cedula, usuario]
+      'SELECT id FROM usuarios WHERE cedula = ?',
+      [cedula]
     );
 
     if (existingUsers.length > 0) {
-      return res.status(400).json({ error: 'La cédula o usuario ya están registrados' });
+      return res.status(400).json({ error: 'Esta cédula ya está registrada en el sistema' });
     }
 
     // Encriptar contraseña
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Insertar usuario
+    // Insertar usuario (solo cédula y contraseña)
     const [result] = await db.execute(
-      'INSERT INTO usuarios (cedula, usuario, password_hash, rol) VALUES (?, ?, ?, ?)',
-      [cedula, usuario, passwordHash, rol]
+      'INSERT INTO usuarios (cedula, password_hash) VALUES (?, ?)',
+      [cedula, passwordHash]
     );
 
     res.status(201).json({
@@ -61,16 +61,16 @@ router.post('/register', async (req, res) => {
 // Login de usuario
 router.post('/login', async (req, res) => {
   try {
-    const { usuario, password } = req.body;
+    const { cedula, password } = req.body;
 
-    if (!usuario || !password) {
-      return res.status(400).json({ error: 'Usuario y contraseña son requeridos' });
+    if (!cedula || !password) {
+      return res.status(400).json({ error: 'Cédula y contraseña son requeridos' });
     }
 
-    // Buscar usuario
+    // Buscar usuario por cédula
     const [users] = await db.execute(
-      'SELECT id, cedula, usuario, password_hash, rol, activo FROM usuarios WHERE usuario = ? AND activo = TRUE',
-      [usuario]
+      'SELECT id, cedula, password_hash, activo FROM usuarios WHERE cedula = ? AND activo = TRUE',
+      [cedula]
     );
 
     if (users.length === 0) {
@@ -89,9 +89,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign(
       { 
         userId: user.id, 
-        cedula: user.cedula, 
-        usuario: user.usuario, 
-        rol: user.rol 
+        cedula: user.cedula
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
@@ -102,9 +100,7 @@ router.post('/login', async (req, res) => {
       token,
       user: {
         id: user.id,
-        cedula: user.cedula,
-        usuario: user.usuario,
-        rol: user.rol
+        cedula: user.cedula
       }
     });
 

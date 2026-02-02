@@ -5,7 +5,7 @@ import { authAPI } from '../services/api';
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (usuario: string, password: string) => Promise<void>;
+  login: (cedula: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -53,9 +53,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (usuario: string, password: string) => {
+  const login = async (cedula: string, password: string) => {
     try {
-      const response = await authAPI.login({ usuario, password });
+      const response = await authAPI.login({ cedula, password });
       
       setToken(response.token);
       setUser(response.user);

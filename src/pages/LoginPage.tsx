@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { ClipboardCheck, User, Lock, AlertCircle } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
-  const [usuario, setUsuario] = useState('');
+  const [cedula, setCedula] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +18,7 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login(usuario, password);
+      await login(cedula, password);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.message);
@@ -52,22 +52,22 @@ const LoginPage: React.FC = () => {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="usuario" className="block text-sm font-medium text-gray-700">
-                Usuario
+              <label htmlFor="cedula" className="block text-sm font-medium text-gray-700">
+                Cédula de Identidad
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <CreditCard className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="usuario"
-                  name="usuario"
+                  id="cedula"
+                  name="cedula"
                   type="text"
                   required
-                  value={usuario}
-                  onChange={(e) => setUsuario(e.target.value)}
+                  value={cedula}
+                  onChange={(e) => setCedula(e.target.value.replace(/\D/g, ''))}
                   className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Ingresa tu usuario"
+                  placeholder="Ingresa tu cédula"
                 />
               </div>
             </div>

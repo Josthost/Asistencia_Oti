@@ -14,7 +14,7 @@ const authenticateToken = async (req, res, next) => {
     
     // Verificar que el usuario aún existe y está activo
     const [users] = await db.execute(
-      'SELECT id, cedula, usuario, rol, activo FROM usuarios WHERE id = ? AND activo = TRUE',
+      'SELECT id, cedula, activo FROM usuarios WHERE id = ? AND activo = TRUE',
       [decoded.userId]
     );
 
@@ -29,13 +29,4 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-const authorizeRoles = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.rol)) {
-      return res.status(403).json({ error: 'No tienes permisos para esta acción' });
-    }
-    next();
-  };
-};
-
-export { authenticateToken, authorizeRoles };
+export { authenticateToken };

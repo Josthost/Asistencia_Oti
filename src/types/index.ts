@@ -1,20 +1,16 @@
 export interface User {
   id: number;
   cedula: number;
-  usuario: string;
-  rol: 'admin' | 'empleado' | 'supervisor';
 }
 
 export interface LoginCredentials {
-  usuario: string;
+  cedula: string;
   password: string;
 }
 
 export interface RegisterData {
   cedula: number;
-  usuario: string;
   password: string;
-  rol?: 'admin' | 'empleado' | 'supervisor';
 }
 
 export interface AuthResponse {

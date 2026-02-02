@@ -6,12 +6,8 @@ import { ClipboardCheck, User, Lock, CreditCard, AlertCircle, CheckCircle, Searc
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
     cedula: '',
-    usuario: '',
     password: '',
-    confirmPassword: '',
-    departamento: '',
-    cargo: '',
-    rol: 'empleado' as 'admin' | 'empleado' | 'supervisor'
+    confirmPassword: ''
   });
   
   const [employeeData, setEmployeeData] = useState<{
@@ -19,6 +15,7 @@ const RegisterPage: React.FC = () => {
     apellido?: string;
     departamento?: string;
     cargo?: string;
+    fecha_ingreso?: string;
   } | null>(null);
   
   const [isSearching, setIsSearching] = useState(false);
@@ -78,13 +75,6 @@ const RegisterPage: React.FC = () => {
       setDataFound(false);
       setEmployeeData(null);
       setSearchMessage('');
-      setFormData(prev => ({
-        ...prev,
-        usuario: '',
-        departamento: '',
-        cargo: '',
-        rol: 'empleado'
-      }));
     }
   };
 
@@ -100,7 +90,7 @@ const RegisterPage: React.FC = () => {
     }
 
     setIsSearching(true);
-    setSearchMessage('Buscando empleado...');
+    setSearchMessage('Buscando empleado en la base de datos...');
     setEmployeeData(null);
     setDataFound(false);
 
@@ -112,23 +102,8 @@ const RegisterPage: React.FC = () => {
         setEmployeeData(empleado);
         setDataFound(true);
         setSearchMessage(`✅ Empleado encontrado: ${empleado.nombre_completo}`);
-        
-        // Generar usuario automáticamente
-        const usuarioGenerado = generateUsername(empleado.nombre, empleado.apellido);
-        
-        // Determinar rol automáticamente
-        const rolAsignado = determineRole(empleado.cargo);
-        
-        // Actualizar formulario con datos encontrados
-        setFormData(prev => ({
-          ...prev,
-          usuario: usuarioGenerado,
-          departamento: empleado.departamento,
-          cargo: empleado.cargo,
-          rol: rolAsignado
-        }));
       } else {
-        setSearchMessage('❌ No se encontró empleado con esa cédula en la base de datos externa');
+        setSearchMessage('❌ No se encontró empleado activo con esa cédula');
         setDataFound(false);
       }
     } catch (error: any) {
@@ -178,9 +153,7 @@ const RegisterPage: React.FC = () => {
     try {
       await authAPI.register({
         cedula: parseInt(formData.cedula),
-        usuario: formData.usuario,
-        password: formData.password,
-        rol: formData.rol
+        password: formData.password
       });
 
       setSuccess('Usuario registrado exitosamente. Redirigiendo al login...');
@@ -211,6 +184,9 @@ const RegisterPage: React.FC = () => {
       default: return 'Empleado';
     }
   };
+
+  const generatedUsername = employeeData ? generateUsername(employeeData.nombre || '', employeeData.apellido || '') : '';
+  const assignedRole = employeeData ? determineRole(employeeData.cargo || '') : 'empleado';
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -304,7 +280,7 @@ const RegisterPage: React.FC = () => {
                   id="usuario"
                   name="usuario"
                   type="text"
-                  value={formData.usuario}
+                  value={generatedUsername}
                   disabled
                   className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 bg-gray-100 text-gray-500 rounded-md cursor-not-allowed sm:text-sm"
                   placeholder="Se generará automáticamente"
@@ -325,7 +301,7 @@ const RegisterPage: React.FC = () => {
                   id="departamento"
                   name="departamento"
                   type="text"
-                  value={formData.departamento}
+                  value={employeeData?.departamento || ''}
                   disabled
                   className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 bg-gray-100 text-gray-500 rounded-md cursor-not-allowed sm:text-sm"
                   placeholder="Se obtendrá de la base de datos"
@@ -346,7 +322,7 @@ const RegisterPage: React.FC = () => {
                   id="cargo"
                   name="cargo"
                   type="text"
-                  value={formData.cargo}
+                  value={employeeData?.cargo || ''}
                   disabled
                   className="appearance-none relative block w-full pl-10 pr-3 py-2 border border-gray-300 bg-gray-100 text-gray-500 rounded-md cursor-not-allowed sm:text-sm"
                   placeholder="Se obtendrá de la base de datos"
@@ -358,12 +334,12 @@ const RegisterPage: React.FC = () => {
             {dataFound && (
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Rol Asignado
+                  Rol Asignado Automáticamente
                 </label>
                 <div className="mt-1">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getRoleBadgeColor(formData.rol)}`}>
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getRoleBadgeColor(assignedRole)}`}>
                     <UserCheck className="h-4 w-4 mr-1" />
-                    {getRoleLabel(formData.rol)}
+                    {getRoleLabel(assignedRole)}
                   </span>
                 </div>
               </div>
@@ -425,11 +401,14 @@ const RegisterPage: React.FC = () => {
             <div className="bg-green-50 border border-green-200 rounded-md p-4">
               <h4 className="text-sm font-medium text-green-800 mb-2">Datos del Empleado:</h4>
               <div className="grid grid-cols-1 gap-2 text-xs text-green-700">
-                <div><strong>Nombre Completo:</strong> {employeeData.nombre} {employeeData.apellido}</div>
+                <div><strong>Nombre Completo:</strong> {employeeData.nombre_completo}</div>
                 <div><strong>Departamento:</strong> {employeeData.departamento}</div>
                 <div><strong>Cargo:</strong> {employeeData.cargo}</div>
-                <div><strong>Usuario Generado:</strong> {formData.usuario}</div>
-                <div><strong>Rol Asignado:</strong> {getRoleLabel(formData.rol)}</div>
+                <div><strong>Usuario Generado:</strong> {generatedUsername}</div>
+                <div><strong>Rol Asignado:</strong> {getRoleLabel(assignedRole)}</div>
+                {employeeData.fecha_ingreso && (
+                  <div><strong>Fecha de Ingreso:</strong> {new Date(employeeData.fecha_ingreso).toLocaleDateString()}</div>
+                )}
               </div>
             </div>
           )}
