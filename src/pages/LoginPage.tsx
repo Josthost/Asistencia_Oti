@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ClipboardCheck, User, Lock, AlertCircle } from 'lucide-react';
+import { ClipboardCheck, User, Lock, AlertCircle, CreditCard } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const [cedula, setCedula] = useState('');
