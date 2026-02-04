@@ -88,8 +88,6 @@ export const asistenciasAPI = {
   },
 };
 
-export default api;
-
 // Employees API (External DB)
 export const employeesAPI = {
   buscarPorCedula: async (cedula: string): Promise<{
@@ -130,3 +128,5 @@ export const employeesAPI = {
     return response.data;
   },
 };
+
+export default api;

@@ -25,7 +25,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" replace />;
   }
 
-  if (requiredRoles.length > 0 && user && !requiredRoles.includes(user.rol)) {
+  if (requiredRoles.length > 0 && user && !requiredRoles.includes(user.rol || '')) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

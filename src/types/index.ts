@@ -1,6 +1,8 @@
 export interface User {
   id: number;
   cedula: number;
+  rol?: string;
+  usuario?: string;
 }
 
 export interface LoginCredentials {
