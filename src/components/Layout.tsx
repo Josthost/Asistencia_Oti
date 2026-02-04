@@ -66,9 +66,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       }`
                     }
                   >
-                    <span className={({ isActive }) => isActive ? 'text-yellow-600' : ''}>
+                    {({ isActive }) => (
+                      <span className={isActive ? 'text-yellow-600' : ''}>
                       {item.icon}
-                    </span>
+                      </span>
+                    )}
                     <span className="ml-3">{item.label}</span>
                   </NavLink>
                 </li>
