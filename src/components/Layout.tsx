@@ -67,11 +67,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     }
                   >
                     {({ isActive }) => (
-                      <span className={isActive ? 'text-yellow-600' : ''}>
-                      {item.icon}
-                      </span>
+                      <>
+                        <span className={isActive ? 'text-yellow-600' : ''}>
+                          {item.icon}
+                        </span>
+                        <span className="ml-3">{item.label}</span>
+                      </>
                     )}
-                    <span className="ml-3">{item.label}</span>
                   </NavLink>
                 </li>
               ))}
