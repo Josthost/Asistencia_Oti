@@ -3,71 +3,42 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env' });
 
-console.log('🔧 Configurando conexión a MariaDB local...');
+console.log('🔧 Cargando configuración BD...');
 
 const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || '127.0.0.1',
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
+  password: process.env.DB_PASSWORD || '123456',
   database: process.env.DB_NAME || 'sistema_asistencia',
-  port: parseInt(process.env.DB_PORT) || 3306,
+  port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  socketPath: null,
+  timezone: '+00:00', // UTC para evitar problemas de timezone
+  dateStrings: true   // Retornar fechas como strings
 };
 
-console.log('🐬 Configuración MariaDB local:', {
+console.log('🐬 Configuración BD cargada:', {
   host: dbConfig.host,
   user: dbConfig.user,
   database: dbConfig.database,
-  port: dbConfig.port,
   hasPassword: !!dbConfig.password
 });
 
 const pool = mysql.createPool(dbConfig);
 
-// Test local connection and create tables
-const initializeDatabase = async () => {
+// Test connection
+const testConnection = async () => {
   try {
     const connection = await pool.getConnection();
-    console.log('✅ Conexión a MariaDB local establecida correctamente');
-    
-    // Crear tabla usuarios optimizada (solo cédulas y contraseñas)
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS usuarios (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        cedula INT(11) UNIQUE NOT NULL,
-        password_hash VARCHAR(200) NOT NULL,
-        activo BOOLEAN DEFAULT TRUE,
-        fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-        INDEX idx_cedula (cedula)
-      )
-    `);
-    
-    // Crear tabla asistencias
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS asistencias (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        usuario_id INT NOT NULL,
-        cedula INT(11) NOT NULL,
-        fecha DATE NOT NULL,
-        hora_entrada TIME NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-        INDEX idx_fecha (fecha),
-        INDEX idx_cedula_fecha (cedula, fecha)
-      )
-    `);
-    
-    console.log('✅ Tablas de base de datos local verificadas/creadas');
+    console.log('✅ Conexión a MySQL establecida correctamente');
     connection.release();
   } catch (error) {
-    console.error('❌ Error inicializando base de datos local:', error.message);
-    throw error;
+    console.error('❌ Error conectando a MySQL:', error.message);
   }
 };
 
-// Initialize database on startup
-initializeDatabase();
+testConnection();
 
 export default pool;
