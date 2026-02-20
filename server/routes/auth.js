@@ -41,9 +41,9 @@ router.post('/register', async (req, res) => {
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Insertar usuario (solo cédula y contraseña)
+    // Insertar usuario con rol por defecto 'empleado'
     const [result] = await db.execute(
-      'INSERT INTO usuarios (cedula, password_hash) VALUES (?, ?)',
+      "INSERT INTO usuarios (cedula, password_hash, rol) VALUES (?, ?, 'empleado')",
       [cedula, passwordHash]
     );
 
@@ -67,9 +67,9 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Cédula y contraseña son requeridos' });
     }
 
-    // Buscar usuario por cédula
+    // Buscar usuario por cédula (incluye rol)
     const [users] = await db.execute(
-      'SELECT id, cedula, password_hash, activo FROM usuarios WHERE cedula = ? AND activo = TRUE',
+      'SELECT id, cedula, password_hash, activo, rol FROM usuarios WHERE cedula = ? AND activo = TRUE',
       [cedula]
     );
 
@@ -100,7 +100,8 @@ router.post('/login', async (req, res) => {
       token,
       user: {
         id: user.id,
-        cedula: user.cedula
+        cedula: user.cedula,
+        rol: user.rol || 'empleado'
       }
     });
 

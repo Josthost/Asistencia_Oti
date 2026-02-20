@@ -12,9 +12,9 @@ const authenticateToken = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Verificar que el usuario aún existe y está activo
+    // Verificar que el usuario aún existe y está activo (incluye rol)
     const [users] = await db.execute(
-      'SELECT id, cedula, activo FROM usuarios WHERE id = ? AND activo = TRUE',
+      'SELECT id, cedula, activo, rol FROM usuarios WHERE id = ? AND activo = TRUE',
       [decoded.userId]
     );
 

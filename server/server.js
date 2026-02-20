@@ -39,8 +39,12 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware CORS SIMPLIFICADO Y FUNCIONAL
+const isDev = process.env.NODE_ENV !== 'production';
+const allowedOrigin = process.env.CORS_ORIGIN || 'http://172.16.0.71';
+
 app.use(cors({
-  origin: 'http://172.16.1.51',
+  // In development allow any origin (useful while using Vite proxy or different dev hosts)
+  origin: isDev ? true : allowedOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -53,6 +57,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/asistencias', asistenciasRoutes);
 app.use('/api/employees', employeesRoutes);
+
+// If requested via environment, serve static frontend build (useful when not using nginx)
+if (process.env.SERVE_STATIC === 'true') {
+  const distPath = path.join(__dirname, '..', 'dist');
+  console.log('📦 SERVE_STATIC enabled. Serving', distPath);
+  app.use(express.static(distPath));
+
+  // SPA fallback
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
 
 // Health check
 app.get('/api/health', (req, res) => {

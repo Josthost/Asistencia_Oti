@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { LoginCredentials, RegisterData, AuthResponse, AsistenciaRecord, AsistenciaStats } from '../types';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+// Use a relative API base URL so Vite proxy or the deployed server can route correctly
+const API_BASE_URL = '/api';
 
 // Create axios instance
 const api = axios.create({

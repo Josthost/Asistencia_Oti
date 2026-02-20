@@ -5,7 +5,8 @@ import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 const router = express.Router();
 
 // Buscar empleado por cédula en BD externa
-router.get('/buscar-cedula/:cedula', authenticateToken, async (req, res) => {
+// Allow public searching by cedula for registration flow (no token required)
+router.get('/buscar-cedula/:cedula', async (req, res) => {
   try {
     const { cedula } = req.params;
     
