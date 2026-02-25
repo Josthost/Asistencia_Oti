@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { LoginCredentials, RegisterData, AuthResponse, AsistenciaRecord, AsistenciaStats } from '../types';
 
-// Use a relative API base URL so Vite proxy or the deployed server can route correctly
+// Usamos URL relativa para que funcione con el proxy de Vite y en producción
 const API_BASE_URL = '/api';
 
 // Create axios instance
@@ -28,7 +28,10 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_data');
-      window.location.href = '/login';
+      // Evitar bucle de redirección si ya estamos en login
+      if (!window.location.pathname.includes('/login')) {
+         window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -87,6 +90,25 @@ export const asistenciasAPI = {
     const response = await api.get('/asistencias/estadisticas');
     return response.data;
   },
+
+  // Nuevo: Para que el admin registre manualmente
+  registrarManual: async (data: { usuario_id: string | number; fecha: string; hora_entrada: string; notas?: string }) => {
+    const response = await api.post('/asistencias/manual', data);
+    return response.data;
+  },
+
+  // Nuevo: Para eliminar registros (Con logs de depuración recuperados)
+  eliminar: async (id: number | string): Promise<any> => {
+    console.log('🗑️ Enviando solicitud DELETE para ID:', id);
+    try {
+      const response = await api.delete(`/asistencias/${id}`);
+      console.log('✅ Respuesta DELETE recibida:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Error en DELETE:', error);
+      throw error;
+    }
+  }
 };
 
 // Employees API (External DB)
@@ -128,6 +150,12 @@ export const employeesAPI = {
     const response = await api.get('/employees/stats');
     return response.data;
   },
+
+  getAll: async (): Promise<any[]> => {
+    // Usamos la ruta de buscar sin parámetros para traer todos
+    const response = await api.get('/employees/buscar', { params: { limit: 100 } }); 
+    return response.data.empleados || response.data;
+  }
 };
 
 export default api;

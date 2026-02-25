@@ -4,6 +4,12 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Importar rutas
+import authRoutes from './routes/auth.js';
+import asistenciasRoutes from './routes/asistencias.js';
+// IMPORTANTE: Se añade esta ruta que estaba en el segundo archivo
+import employeesRoutes from './routes/employees.js';
+
 // Para simular __dirname en ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,72 +36,103 @@ if (!process.env.DB_NAME) {
   process.env.DB_NAME = 'sistema_asistencia';
 }
 
-// Importar rutas
-import authRoutes from './routes/auth.js';
-import asistenciasRoutes from './routes/asistencias.js';
-import employeesRoutes from './routes/employees.js';
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware CORS SIMPLIFICADO Y FUNCIONAL
+// ==========================================
+// CONFIGURACIÓN DE CORS (FUSIONADA)
+// ==========================================
+// Lista de orígenes permitidos combinando ambos archivos
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://172.16.1.51', // Del archivo 1
+  'http://172.16.0.71', // Del archivo 2
+  process.env.CORS_ORIGIN // Por si lo defines en el .env
+];
+
 const isDev = process.env.NODE_ENV !== 'production';
-const allowedOrigin = process.env.CORS_ORIGIN || 'http://172.16.0.71';
 
 app.use(cors({
-  // In development allow any origin (useful while using Vite proxy or different dev hosts)
-  origin: isDev ? true : allowedOrigin,
+  origin: function (origin, callback) {
+    // Permitir solicitudes sin origen (como Postman o Apps móviles)
+    if (!origin) return callback(null, true);
+    
+    // En desarrollo permitimos todo, en producción filtramos
+    if (isDev || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('🚫 CORS bloqueado para:', origin);
+      callback(new Error('No permitido por CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
+// Middleware adicional para manejar preflight requests (OPTIONS)
+app.use(cors());
+
+// Middlewares de Express
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// ==========================================
+// DEFINICIÓN DE RUTAS
+// ==========================================
 app.use('/api/auth', authRoutes);
 app.use('/api/asistencias', asistenciasRoutes);
-app.use('/api/employees', employeesRoutes);
+app.use('/api/employees', employeesRoutes); // Agregado del archivo 2
 
-// If requested via environment, serve static frontend build (useful when not using nginx)
+// ==========================================
+// SERVIR FRONTEND ESTÁTICO (Del Archivo 2)
+// ==========================================
+// Útil si no usas Nginx y quieres que Node sirva la página web
 if (process.env.SERVE_STATIC === 'true') {
   const distPath = path.join(__dirname, '..', 'dist');
-  console.log('📦 SERVE_STATIC enabled. Serving', distPath);
+  console.log('📦 SERVE_STATIC activado. Sirviendo archivos desde:', distPath);
   app.use(express.static(distPath));
 
-  // SPA fallback
+  // SPA fallback (para que React/Vue router funcione al recargar)
   app.get('*', (req, res) => {
+    // Ignorar las rutas de API para que no devuelvan el HTML
+    if (req.url.startsWith('/api')) return res.status(404).json({ error: 'API route not found' });
     res.sendFile(path.join(distPath, 'index.html'));
   });
 }
 
-// Health check
+// ==========================================
+// HEALTH CHECK
+// ==========================================
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
     message: 'Servidor funcionando correctamente',
     timestamp: new Date().toISOString(),
     environment: {
+      node_env: process.env.NODE_ENV || 'development',
       db_configured: !!process.env.DB_HOST,
       jwt_configured: !!process.env.JWT_SECRET
     }
   });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('❌ Error no manejado:', err.stack);
-  res.status(500).json({ error: 'Algo salió mal!' });
-});
-
-// 404 handler
+// ==========================================
+// MANEJO DE ERRORES
+// ==========================================
+// 404 handler (Ruta no encontrada)
 app.use((req, res) => {
   console.log('❌ Ruta no encontrada:', req.method, req.url);
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-// Manejo de errores globales
+// Error handling middleware global
+app.use((err, req, res, next) => {
+  console.error('❌ Error no manejado:', err.stack);
+  res.status(500).json({ error: 'Algo salió mal en el servidor!' });
+});
+
+// Captura de errores críticos del proceso
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
 });
@@ -105,6 +142,9 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 
+// ==========================================
+// INICIAR SERVIDOR
+// ==========================================
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
   console.log(`📊 API disponible en http://localhost:${PORT}/api`);

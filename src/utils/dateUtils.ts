@@ -1,4 +1,8 @@
-// Format date to YYYY-MM-DD
+// ==========================================
+// UTILIDADES DE FECHA Y HORA
+// ==========================================
+
+// Formato YYYY-MM-DD
 export const formatDate = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -6,17 +10,17 @@ export const formatDate = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-// Format time to HH:MM
+// Formato HH:MM
 export const formatTime = (date: Date): string => {
   return date.toTimeString().substring(0, 5);
 };
 
-// Get current week's date range (Monday to Sunday)
+// Obtener rango de la semana actual (Lunes a Domingo)
 export const getCurrentWeekRange = (): { startDate: string, endDate: string } => {
   const today = new Date();
-  const day = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
+  const day = today.getDay(); // 0 es Domingo, 1 es Lunes...
   
-  // Calculate days to subtract to get to Monday
+  // Calcular días a restar para llegar al Lunes
   const daysToMonday = day === 0 ? 6 : day - 1;
   
   const monday = new Date(today);
@@ -33,14 +37,14 @@ export const getCurrentWeekRange = (): { startDate: string, endDate: string } =>
   };
 };
 
-// Get current month's date range
+// Obtener rango del mes actual
 export const getCurrentMonthRange = (): { startDate: string, endDate: string } => {
   const today = new Date();
   
-  // First day of current month
+  // Primer día del mes
   const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
   
-  // Last day of current month
+  // Último día del mes
   const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
   lastDay.setHours(23, 59, 59, 999);
   
@@ -50,10 +54,14 @@ export const getCurrentMonthRange = (): { startDate: string, endDate: string } =
   };
 };
 
-// Get formatted date range string (e.g., "1 Mayo - 7 Mayo, 2023")
+// Obtener rango legible (ej: "1 Mayo - 7 Mayo, 2023")
 export const getFormattedDateRange = (startDate: string, endDate: string): string => {
-  const start = new Date(startDate + 'T00:00:00');
-  const end = new Date(endDate + 'T00:00:00');
+  // Usamos parsing manual para evitar problemas de zona horaria
+  const [sYear, sMonth, sDay] = startDate.split('-');
+  const [eYear, eMonth, eDay] = endDate.split('-');
+
+  const start = new Date(parseInt(sYear), parseInt(sMonth) - 1, parseInt(sDay));
+  const end = new Date(parseInt(eYear), parseInt(eMonth) - 1, parseInt(eDay));
   
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
   const startFormatted = start.toLocaleDateString('es-ES', options);
@@ -68,22 +76,65 @@ export const getFormattedDateRange = (startDate: string, endDate: string): strin
   return `${startFormatted} - ${endFormatted}`;
 };
 
-// Get day name from date
+// Obtener nombre del día (Lunes, Martes...)
 export const getDayName = (dateString: string): string => {
-  const date = new Date(dateString + 'T00:00:00');
-  return date.toLocaleDateString('es-ES', { weekday: 'long' });
+  if (!dateString) return 'Día inválido';
+  
+  try {
+    // Parseo manual seguro
+    const [year, month, day] = dateString.split('-');
+    if (!year || !month || !day) return 'Día inválido';
+    
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    
+    if (isNaN(date.getTime())) return 'Día inválido';
+    
+    // Capitalizar la primera letra (lunes -> Lunes)
+    const dayName = date.toLocaleDateString('es-ES', { weekday: 'long' });
+    return dayName.charAt(0).toUpperCase() + dayName.slice(1);
+    
+  } catch (error) {
+    return 'Día inválido';
+  }
 };
 
-// Get all days in a week given the start date (Monday)
+// Obtener array de fechas de la semana dado el inicio
 export const getWeekDays = (startDate: string): string[] => {
-  const start = new Date(startDate + 'T00:00:00');
+  const [year, month, day] = startDate.split('-');
+  const start = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  
   const days = [];
   
   for (let i = 0; i < 7; i++) {
-    const day = new Date(start);
-    day.setDate(start.getDate() + i);
-    days.push(formatDate(day));
+    const current = new Date(start);
+    current.setDate(start.getDate() + i);
+    days.push(formatDate(current));
   }
   
   return days;
+};
+
+// Formatear fecha segura para tablas y reportes
+export const formatDateSafe = (dateString: string): string => {
+  if (!dateString) return '';
+  
+  try {
+    // Limpiar si viene con hora ISO (T)
+    const datePart = dateString.includes('T') ? dateString.split('T')[0] : dateString;
+    
+    const [year, month, day] = datePart.split('-');
+    if (!year || !month || !day) return dateString;
+    
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    
+    if (isNaN(date.getTime())) return dateString;
+    
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  } catch (error) {
+    return dateString;
+  }
 };
