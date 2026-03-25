@@ -13,6 +13,7 @@ const RegisterPage: React.FC = () => {
   const [employeeData, setEmployeeData] = useState<{
     nombre?: string;
     apellido?: string;
+    nombre_completo?: string;
     departamento?: string;
     cargo?: string;
     fecha_ingreso?: string;
@@ -99,7 +100,14 @@ const RegisterPage: React.FC = () => {
       
       if (result.found && result.empleado) {
         const empleado = result.empleado;
-        setEmployeeData(empleado);
+        setEmployeeData({
+          nombre: empleado.nombre,
+          apellido: empleado.apellido,
+          nombre_completo: empleado.nombre_completo,
+          departamento: empleado.departamento,
+          cargo: empleado.cargo,
+          fecha_ingreso: empleado.fecha_ingreso
+        });
         setDataFound(true);
         setSearchMessage(`✅ Empleado encontrado: ${empleado.nombre_completo}`);
       } else {
@@ -108,7 +116,15 @@ const RegisterPage: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Error buscando empleado:', error);
-      setSearchMessage('⚠️ Error al conectar con la base de datos externa');
+      
+      // Manejar diferentes tipos de errores
+      if (error.response?.status === 404) {
+        setSearchMessage('❌ No se encontró empleado con esa cédula o BD externa no disponible');
+      } else if (error.response?.status === 502 || error.response?.status === 503) {
+        setSearchMessage('⚠️ Base de datos externa no disponible. Puedes continuar con el registro básico.');
+      } else {
+        setSearchMessage('⚠️ Error al conectar con la base de datos externa');
+      }
       setDataFound(false);
     } finally {
       setIsSearching(false);
@@ -153,7 +169,10 @@ const RegisterPage: React.FC = () => {
     try {
       await authAPI.register({
         cedula: parseInt(formData.cedula),
-        password: formData.password
+        password: formData.password,
+        usuario: employeeData?.nombre_completo,
+        departamento: employeeData?.departamento,
+        cargo: employeeData?.cargo
       });
 
       setSuccess('Usuario registrado exitosamente. Redirigiendo al login...');

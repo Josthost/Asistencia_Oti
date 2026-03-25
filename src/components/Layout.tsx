@@ -36,7 +36,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-white text-sm">
-                Bienvenido, <span className="font-semibold">Cédula: {user?.cedula}</span>
+                Bienvenido, <span className="font-semibold">{user?.usuario || `Cédula: ${user?.cedula}`}</span>
+                {user?.departamento && (
+                  <span className="text-xs block text-blue-100">{user.departamento}</span>
+                )}
               </span>
               <button
                 onClick={handleLogout}

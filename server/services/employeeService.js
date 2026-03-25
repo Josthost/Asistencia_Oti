@@ -11,6 +11,12 @@ class EmployeeService {
     try {
       console.log(`🔍 Buscando empleado con cédula: ${cedula}`);
       
+      // Verificar si el pool está disponible
+      if (!externalDb || externalDb.ending) {
+        console.warn('⚠️  Pool de PostgreSQL no disponible');
+        return null;
+      }
+      
       client = await externalDb.connect();
       
       // Consulta SQL completa según especificaciones
@@ -82,12 +88,19 @@ class EmployeeService {
       console.error('❌ Error consultando empleado en PostgreSQL:', error);
       
       // Si hay error de conexión, devolver null en lugar de lanzar error
-      if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      if (error.code === 'ECONNREFUSED' || 
+          error.code === 'ENOTFOUND' || 
+          error.code === 'ETIMEDOUT' ||
+          error.code === 'ECONNRESET' ||
+          error.message?.includes('timeout') ||
+          error.message?.includes('connection')) {
         console.warn('⚠️  Base de datos PostgreSQL externa no disponible');
         return null;
       }
       
-      throw error;
+      // En lugar de lanzar error, devolver null para no romper el flujo
+      console.warn('⚠️  Error en consulta PostgreSQL, continuando sin datos externos');
+      return null;
     } finally {
       if (client) {
         client.release();

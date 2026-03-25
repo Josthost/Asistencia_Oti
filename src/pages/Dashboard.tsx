@@ -207,7 +207,12 @@ const Dashboard: React.FC = () => {
               </div>
               <div className="ml-4">
                 <h2 className="text-sm font-medium text-gray-500">Tu Rol</h2>
-                <p className="text-lg font-bold text-gray-800 capitalize">{user?.rol}</p>
+                <div>
+                  <p className="text-lg font-bold text-gray-800 capitalize">{user?.rol}</p>
+                  {user?.departamento && (
+                    <p className="text-xs text-gray-500">{user.departamento}</p>
+                  )}
+                </div>
               </div>
             </div>
           </>
@@ -260,7 +265,12 @@ const Dashboard: React.FC = () => {
               </div>
               <div className="ml-4">
                 <h2 className="text-sm font-medium text-gray-500">Mi Rol</h2>
-                <p className="text-lg font-bold text-gray-800 capitalize">{user?.rol}</p>
+                <div>
+                  <p className="text-lg font-bold text-gray-800 capitalize">{user?.rol}</p>
+                  {user?.departamento && (
+                    <p className="text-xs text-gray-500">{user.departamento}</p>
+                  )}
+                </div>
               </div>
             </div>
           </>
@@ -283,6 +293,11 @@ const Dashboard: React.FC = () => {
                       Usuario
                     </th>
                   )}
+                  {isAdmin && (
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Departamento
+                    </th>
+                  )}
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Fecha
                   </th>
@@ -303,6 +318,7 @@ const Dashboard: React.FC = () => {
                   const usuario = r.usuario || (r.employeeId ? 'Empleado #' + r.employeeId : 'Desconocido');
                   const rol = r.rol;
                   const notas = r.notas;
+                  const departamento = r.departamento;
 
                   return (
                     <tr key={r.id} className="hover:bg-gray-50 transition-colors">
@@ -310,6 +326,22 @@ const Dashboard: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
                             {usuario}
+                          </div>
+                          {rol && (
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              rol === 'admin' ? 'bg-red-100 text-red-800' :
+                              rol === 'supervisor' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-green-100 text-green-800'
+                            }`}>
+                              {rol}
+                            </span>
+                          )}
+                        </td>
+                      )}
+                      {isAdmin && (
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500">
+                            {departamento || '-'}
                           </div>
                         </td>
                       )}
@@ -324,15 +356,7 @@ const Dashboard: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {rol ? (
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            rol === 'admin' ? 'bg-red-100 text-red-800' :
-                            rol === 'supervisor' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-green-100 text-green-800'
-                          }`}>
-                            {rol}
-                          </span>
-                        ) : notas ? (
+                        {notas ? (
                           <span className="text-xs text-gray-500 italic max-w-[150px] truncate block" title={notas}>
                             📝 {notas}
                           </span>

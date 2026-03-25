@@ -7,6 +7,8 @@ export interface User {
   cedula: string;    // Identificador principal (Login)
   usuario: string;   // Nombre real para mostrar (ej: "Pedro Pérez")
   rol: 'admin' | 'empleado' | 'supervisor';
+  departamento?: string;
+  cargo?: string;
 }
 
 export interface LoginCredentials {
@@ -15,9 +17,11 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  cedula: string;    // Identificador único
-  usuario: string;   // Nombre completo
+  cedula: number;    // Identificador único
+  usuario?: string;   // Nombre completo (opcional, se obtiene de BD externa)
   password: string;
+  departamento?: string;
+  cargo?: string;
   rol?: 'admin' | 'empleado' | 'supervisor';
 }
 

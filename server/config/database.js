@@ -6,7 +6,7 @@ dotenv.config({ path: '.env' });
 console.log('🔧 Cargando configuración BD...');
 
 const dbConfig = {
-  host: process.env.DB_HOST || '127.0.0.1',
+  host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '123456',
   database: process.env.DB_NAME || 'sistema_asistencia',
@@ -14,8 +14,7 @@ const dbConfig = {
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  socketPath: null,
-  timezone: '+00:00', // UTC para evitar problemas de timezone
+  timezone: 'local',
   dateStrings: true   // Retornar fechas como strings
 };
 

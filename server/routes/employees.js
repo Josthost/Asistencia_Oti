@@ -17,15 +17,18 @@ router.get('/buscar-cedula/:cedula', async (req, res) => {
       });
     }
     
+    console.log('🔍 API: Buscando empleado con cédula:', cedula);
     const empleado = await employeeService.getEmployeeByCedula(cedula);
     
     if (!empleado) {
+      console.log('❌ API: No se encontró empleado con cédula:', cedula);
       return res.status(404).json({ 
         error: 'No se encontró empleado con esa cédula',
         found: false
       });
     }
     
+    console.log('✅ API: Empleado encontrado:', empleado.nombre_completo);
     res.json({
       found: true,
       empleado
@@ -33,9 +36,12 @@ router.get('/buscar-cedula/:cedula', async (req, res) => {
     
   } catch (error) {
     console.error('Error buscando empleado:', error);
-    res.status(500).json({ 
-      error: 'Error interno del servidor',
-      found: false
+    
+    // Devolver 503 para errores de servicio no disponible
+    res.status(503).json({ 
+      error: 'Base de datos externa no disponible temporalmente',
+      found: false,
+      details: error.message
     });
   }
 });

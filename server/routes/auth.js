@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../config/database.js';
+import employeeService from '../services/employeeService.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 // Después de los imports en auth.js, agrega:
@@ -16,9 +17,8 @@ const router = express.Router();
 // Registro de usuario
 router.post('/register', async (req, res) => {
   try {
-    const { cedula, password } = req.body;
+    const { cedula, password, departamento } = req.body; // Quitamos usuario y cargo del body
 
-    // Validaciones
     if (!cedula || !password) {
       return res.status(400).json({ error: 'Cédula y contraseña son requeridos' });
     }
@@ -27,29 +27,52 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
     }
 
-    // Verificar si la cédula ya está registrada
-    const [existingUsers] = await db.execute(
-      'SELECT id FROM usuarios WHERE cedula = ?',
-      [cedula]
-    );
+    let departamentoUsuario = departamento;
+    let rolUsuario = 'empleado';
 
-    if (existingUsers.length > 0) {
-      return res.status(400).json({ error: 'Esta cédula ya está registrada en el sistema' });
+    // Buscar datos en BD externa para determinar el Rol y Departamento automáticamente
+    try {
+      console.log('🔍 Buscando datos externos para cédula:', cedula);
+      const empleadoData = await employeeService.getEmployeeByCedula(cedula);
+      
+      if (empleadoData) {
+        departamentoUsuario = empleadoData.departamento;
+        const cargoUsuario = (empleadoData.cargo || '').toLowerCase();
+        
+        // Lógica de roles basada en el cargo (aunque no guardemos el cargo, lo usamos para el rol)
+        const adminRoles = ['director', 'gerente general', 'administrador', 'jefe', 'coordinador general'];
+        const supervisorRoles = ['supervisor', 'coordinador', 'encargado', 'líder'];
+
+        if (adminRoles.some(role => cargoUsuario.includes(role))) {
+          rolUsuario = 'admin';
+        } else if (supervisorRoles.some(role => cargoUsuario.includes(role))) {
+          rolUsuario = 'supervisor';
+        }
+      }
+    } catch (error) {
+      console.warn('⚠️ Error en BD externa, continuando con datos básicos');
     }
 
-    // Encriptar contraseña
+    // Verificar si ya existe
+    const [existingUsers] = await db.execute('SELECT id FROM usuarios WHERE cedula = ?', [cedula]);
+    if (existingUsers.length > 0) {
+      return res.status(400).json({ error: 'Esta cédula ya está registrada' });
+    }
+
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Insertar usuario con rol por defecto 'empleado'
+    // INSERT CORREGIDO: Sin 'usuario' y sin 'cargo'
     const [result] = await db.execute(
-      "INSERT INTO usuarios (cedula, password_hash, rol) VALUES (?, ?, 'empleado')",
-      [cedula, passwordHash]
+      "INSERT INTO usuarios (cedula, password_hash, rol, departamento) VALUES (?, ?, ?, ?)",
+      [cedula, passwordHash, rolUsuario, departamentoUsuario]
     );
+
+    console.log(`✅ Registro exitoso: ${cedula} - Rol: ${rolUsuario}`);
 
     res.status(201).json({
       message: 'Usuario registrado exitosamente',
-      userId: result.insertId
+      user: { id: result.insertId, cedula, rol: rolUsuario, departamento: departamentoUsuario }
     });
 
   } catch (error) {
@@ -67,9 +90,9 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Cédula y contraseña son requeridos' });
     }
 
-    // Buscar usuario por cédula (incluye rol)
+    // SELECT CORREGIDO: Sin 'usuario' y sin 'cargo'
     const [users] = await db.execute(
-      'SELECT id, cedula, password_hash, activo, rol FROM usuarios WHERE cedula = ? AND activo = TRUE',
+      'SELECT id, cedula, password_hash, activo, rol, departamento FROM usuarios WHERE cedula = ? AND activo = TRUE',
       [cedula]
     );
 
@@ -78,19 +101,14 @@ router.post('/login', async (req, res) => {
     }
 
     const user = users[0];
-
-    // Verificar contraseña
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
-    // Generar JWT
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        cedula: user.cedula
-      },
+      { userId: user.id, cedula: user.cedula, rol: user.rol, departamento: user.departamento },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
@@ -101,7 +119,8 @@ router.post('/login', async (req, res) => {
       user: {
         id: user.id,
         cedula: user.cedula,
-        rol: user.rol || 'empleado'
+        rol: user.rol || 'empleado',
+        departamento: user.departamento
       }
     });
 
@@ -110,7 +129,6 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
-
 // Verificar token
 router.get('/verify', authenticateToken, (req, res) => {
   res.json({

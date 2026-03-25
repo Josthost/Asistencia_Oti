@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url';
 // Importar rutas
 import authRoutes from './routes/auth.js';
 import asistenciasRoutes from './routes/asistencias.js';
-// IMPORTANTE: Se añade esta ruta que estaba en el segundo archivo
 import employeesRoutes from './routes/employees.js';
 
 // Para simular __dirname en ES modules
@@ -40,24 +39,21 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // ==========================================
-// CONFIGURACIÓN DE CORS (FUSIONADA)
+// CONFIGURACIÓN DE CORS
 // ==========================================
-// Lista de orígenes permitidos combinando ambos archivos
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://172.16.1.51', // Del archivo 1
-  'http://172.16.0.71', // Del archivo 2
-  process.env.CORS_ORIGIN // Por si lo defines en el .env
+  'http://172.16.1.51',
+  'http://172.16.0.71',
+  process.env.CORS_ORIGIN
 ];
 
 const isDev = process.env.NODE_ENV !== 'production';
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Permitir solicitudes sin origen (como Postman o Apps móviles)
     if (!origin) return callback(null, true);
     
-    // En desarrollo permitimos todo, en producción filtramos
     if (isDev || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -70,36 +66,16 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Middleware adicional para manejar preflight requests (OPTIONS)
-app.use(cors());
-
 // Middlewares de Express
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ==========================================
-// DEFINICIÓN DE RUTAS
+// DEFINICIÓN DE RUTAS API
 // ==========================================
 app.use('/api/auth', authRoutes);
 app.use('/api/asistencias', asistenciasRoutes);
-app.use('/api/employees', employeesRoutes); // Agregado del archivo 2
-
-// ==========================================
-// SERVIR FRONTEND ESTÁTICO (Del Archivo 2)
-// ==========================================
-// Útil si no usas Nginx y quieres que Node sirva la página web
-if (process.env.SERVE_STATIC === 'true') {
-  const distPath = path.join(__dirname, '..', 'dist');
-  console.log('📦 SERVE_STATIC activado. Sirviendo archivos desde:', distPath);
-  app.use(express.static(distPath));
-
-  // SPA fallback (para que React/Vue router funcione al recargar)
-  app.get('*', (req, res) => {
-    // Ignorar las rutas de API para que no devuelvan el HTML
-    if (req.url.startsWith('/api')) return res.status(404).json({ error: 'API route not found' });
-    res.sendFile(path.join(distPath, 'index.html'));
-  });
-}
+app.use('/api/employees', employeesRoutes);
 
 // ==========================================
 // HEALTH CHECK
@@ -112,18 +88,47 @@ app.get('/api/health', (req, res) => {
     environment: {
       node_env: process.env.NODE_ENV || 'development',
       db_configured: !!process.env.DB_HOST,
-      jwt_configured: !!process.env.JWT_SECRET
+      jwt_configured: !!process.env.JWT_SECRET,
+      external_db_configured: !!process.env.EXTERNAL_DB_HOST
     }
   });
 });
 
 // ==========================================
+// SERVIR FRONTEND ESTÁTICO
+// ==========================================
+if (process.env.SERVE_STATIC === 'true') {
+  const distPath = path.join(__dirname, '..', 'dist');
+  console.log('📦 SERVE_STATIC activado. Sirviendo archivos desde:', distPath);
+  
+  // Servir archivos estáticos
+  app.use(express.static(distPath));
+
+  // En lugar de definir ruta por ruta (/login, /register, etc.)
+  // Usamos una expresión regular compatible para que cualquier ruta de navegación 
+  // que NO sea de la API, sirva el index.html
+  app.get(/^(?!\/api).+/, (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
+// ==========================================
 // MANEJO DE ERRORES
 // ==========================================
-// 404 handler (Ruta no encontrada)
+
+app.use('/api/', (req, res) => {
+  console.log('❌ Ruta API no encontrada:', req.method, req.url);
+  res.status(404).json({ error: 'Ruta API no encontrada' });
+});
+
+// 404 handler general (para lo que no es API ni archivos estáticos)
 app.use((req, res) => {
-  console.log('❌ Ruta no encontrada:', req.method, req.url);
-  res.status(404).json({ error: 'Ruta no encontrada' });
+  if (process.env.SERVE_STATIC === 'true') {
+    const distPath = path.join(__dirname, '..', 'dist');
+    res.sendFile(path.join(distPath, 'index.html'));
+  } else {
+    res.status(404).json({ error: 'Ruta no encontrada' });
+  }
 });
 
 // Error handling middleware global

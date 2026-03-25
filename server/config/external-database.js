@@ -13,8 +13,10 @@ const externalDbConfig = {
   database: process.env.EXTERNAL_DB_NAME || 'db_iabn_2025',
   port: parseInt(process.env.EXTERNAL_DB_PORT) || 5432,
   max: 5, // máximo de conexiones en el pool
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 3000,
+  acquireTimeoutMillis: 3000,
+  createTimeoutMillis: 3000,
   ssl: false // ajustar según configuración del servidor
 };
 
